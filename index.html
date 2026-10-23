@@ -1,0 +1,547 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Typing Tutor</title>
+
+<style>
+:root {
+  --bg: #0b0e14;
+  --card: #151b28;
+  --border: #293246;
+  --text: #f0f3fa;
+  --muted: #96a2b7;
+  --green: #54e0b5;
+  --purple: #9b8cff;
+  --red: #ff7185;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: Arial, sans-serif;
+}
+
+header {
+  padding: 22px;
+  border-bottom: 1px solid var(--border);
+}
+
+nav {
+  max-width: 1100px;
+  margin: auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 25px;
+  font-weight: bold;
+  color: var(--green);
+}
+
+main {
+  max-width: 1100px;
+  margin: auto;
+  padding: 30px 18px;
+}
+
+.hero {
+  margin-bottom: 28px;
+}
+
+.hero h1 {
+  font-size: clamp(30px, 5vw, 46px);
+  margin-bottom: 10px;
+}
+
+.hero p {
+  color: var(--muted);
+  line-height: 1.7;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+select, button {
+  padding: 12px 15px;
+  border-radius: 9px;
+  border: 1px solid var(--border);
+  background: var(--card);
+  color: var(--text);
+  font-size: 14px;
+}
+
+button {
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button.primary {
+  background: var(--green);
+  color: #07120f;
+  border-color: var(--green);
+}
+
+button:hover {
+  opacity: 0.85;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+  min-width: 0;
+}
+
+.stat-label {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.stat-value {
+  font-size: 30px;
+  font-weight: bold;
+  margin-top: 12px;
+}
+
+.green { color: var(--green); }
+.purple { color: var(--purple); }
+.red { color: var(--red); }
+
+.test-title {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.test-title h2 {
+  font-size: 18px;
+}
+
+#status {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.progress {
+  height: 5px;
+  background: #293246;
+  border-radius: 9px;
+  overflow: hidden;
+  margin-bottom: 20px;
+}
+
+#progressBar {
+  height: 100%;
+  width: 0;
+  background: var(--green);
+  transition: width 0.15s;
+}
+
+#passage {
+  background: #0d121c;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  font-size: 21px;
+  line-height: 1.9;
+  overflow-wrap: anywhere;
+  white-space: pre-wrap;
+  margin-bottom: 16px;
+}
+
+.char {
+  color: #657187;
+}
+
+.char.correct {
+  color: var(--green);
+}
+
+.char.wrong {
+  color: var(--red);
+  background: #40202b;
+}
+
+.char.current {
+  border-left: 2px solid var(--purple);
+}
+
+textarea {
+  display: block;
+  width: 100%;
+  min-height: 125px;
+  resize: vertical;
+  padding: 16px;
+  background: #0d121c;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  font-size: 17px;
+  line-height: 1.7;
+  outline: none;
+}
+
+textarea:focus {
+  border-color: var(--purple);
+}
+
+textarea:disabled {
+  opacity: 0.7;
+}
+
+.help {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+#result {
+  display: none;
+  padding: 16px;
+  margin-top: 16px;
+  border: 1px solid var(--green);
+  border-radius: 12px;
+  line-height: 1.8;
+}
+
+footer {
+  text-align: center;
+  padding: 25px;
+  border-top: 1px solid var(--border);
+  color: var(--muted);
+  font-size: 13px;
+}
+
+@media (max-width: 650px) {
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .card {
+    padding: 15px;
+  }
+
+  .stat-value {
+    font-size: 25px;
+  }
+
+  #passage {
+    font-size: 18px;
+    padding: 14px;
+  }
+
+  .controls select,
+  .controls button {
+    flex: 1 1 40%;
+  }
+}
+</style>
+</head>
+
+<body>
+<header>
+  <nav>
+    <div class="logo">⌨ Typing Tutor</div>
+    <span style="color:#54e0b5">● Ready to practice</span>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <h1>Improve your typing speed.</h1>
+    <p>Practice English or Hindi, measure your speed and accuracy,
+       and become a better typist every day.</p>
+  </section>
+
+  <section class="controls">
+    <select id="language" aria-label="Choose language">
+      <option value="en">English</option>
+      <option value="hi">Hindi</option>
+    </select>
+
+    <select id="duration" aria-label="Choose test duration">
+      <option value="30">30 Seconds</option>
+      <option value="60" selected>60 Seconds</option>
+      <option value="120">120 Seconds</option>
+    </select>
+
+    <button class="primary" id="startBtn">Start Typing</button>
+    <button id="restartBtn">↻ Restart</button>
+  </section>
+
+  <section class="stats">
+    <div class="card">
+      <div class="stat-label">Typing Speed</div>
+      <div class="stat-value green"><span id="wpm">0</span> <small>WPM</small></div>
+    </div>
+
+    <div class="card">
+      <div class="stat-label">Accuracy</div>
+      <div class="stat-value purple"><span id="accuracy">100</span>%</div>
+    </div>
+
+    <div class="card">
+      <div class="stat-label">Time Left</div>
+      <div class="stat-value"><span id="time">60</span> <small>sec</small></div>
+    </div>
+
+    <div class="card">
+      <div class="stat-label">Mistakes</div>
+      <div class="stat-value red" id="mistakes">0</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="test-title">
+      <h2>Type the following text</h2>
+      <span id="status">Not started</span>
+    </div>
+
+    <div class="progress">
+      <div id="progressBar"></div>
+    </div>
+
+    <div id="passage"></div>
+
+    <textarea id="typingInput"
+      placeholder="Click Start Typing, then type the text above..."
+      spellcheck="false"
+      autocomplete="off"
+      autocorrect="off"
+      autocapitalize="off"></textarea>
+
+    <p class="help">
+      The timer starts with your first keystroke. Paste is disabled
+      so you can practise your real typing skills.
+    </p>
+
+    <div id="result" aria-live="polite"></div>
+  </section>
+</main>
+
+<footer>
+  Made with ♥ for learners | Typing Tutor
+</footer>
+
+<script>
+const passages = {
+  en: [
+    "Practice every day to improve your typing speed. Start slowly, focus on accuracy, and gradually build your confidence. Small steps can lead to great results.",
+    "Technology helps us learn, work, and communicate with people around the world. Good typing skills can make everyday computer tasks easier and faster.",
+    "Success comes from patience and consistent effort. Set a small goal, keep practising, learn from mistakes, and celebrate every improvement.",
+    "Learning a new skill takes time. Stay focused, maintain good posture, and try to type each word correctly before increasing your speed."
+  ],
+  hi: [
+    "अभ्यास से आत्मविश्वास बढ़ता है। हर दिन थोड़ा समय दें और अपनी गति के साथ-साथ शुद्धता पर भी ध्यान दें।",
+    "सीखने की कोई उम्र नहीं होती। धैर्य रखें, नियमित अभ्यास करें और अपनी छोटी-छोटी सफलताओं का आनंद लें।",
+    "अच्छी आदतें हमें अपने लक्ष्य तक पहुँचने में मदद करती हैं। लगातार प्रयास करें और हर दिन कुछ नया सीखें।",
+    "समय का सही उपयोग करना एक महत्वपूर्ण कौशल है। योजना बनाएं, ध्यान से काम करें और अपने लक्ष्य की ओर बढ़ें।"
+  ]
+};
+
+const $ = id => document.getElementById(id);
+
+const language = $("language");
+const duration = $("duration");
+const input = $("typingInput");
+
+let target = "";
+let startedAt = null;
+let timer = null;
+let finished = false;
+let remaining = Number(duration.value);
+
+function choosePassage() {
+  const list = passages[language.value];
+  return list[Math.floor(Math.random() * list.length)];
+}
+
+function renderText() {
+  const typed = input.value;
+  $("passage").replaceChildren();
+
+  for (let i = 0; i < target.length; i++) {
+    const span = document.createElement("span");
+    span.className = "char";
+    span.textContent = target[i];
+
+    if (i < typed.length) {
+      span.classList.add(
+        typed[i] === target[i] ? "correct" : "wrong"
+      );
+    } else if (i === typed.length && !finished) {
+      span.classList.add("current");
+    }
+
+    $("passage").appendChild(span);
+  }
+}
+
+function getStats() {
+  const typed = input.value;
+  let correct = 0;
+  let mistakes = 0;
+
+  for (let i = 0; i < typed.length; i++) {
+    if (typed[i] === target[i]) correct++;
+    else mistakes++;
+  }
+
+  const elapsed = startedAt === null
+    ? 0
+    : Math.max(0, (Date.now() - startedAt) / 1000);
+
+  const wpm = elapsed > 0
+    ? Math.round((correct / 5) / (elapsed / 60))
+    : 0;
+
+  const accuracy = typed.length
+    ? Math.round((correct / typed.length) * 100)
+    : 100;
+
+  return { correct, mistakes, wpm, accuracy };
+}
+
+function updateStats() {
+  const stats = getStats();
+  $("wpm").textContent = stats.wpm;
+  $("accuracy").textContent = stats.accuracy;
+  $("mistakes").textContent = stats.mistakes;
+
+  const progress = Math.min(
+    100,
+    Math.round((input.value.length / target.length) * 100)
+  );
+
+  $("progressBar").style.width = progress + "%";
+  renderText();
+}
+
+function finishTest() {
+  if (finished) return;
+
+  finished = true;
+
+  if (timer !== null) {
+    clearInterval(timer);
+    timer = null;
+  }
+
+  input.disabled = true;
+  $("status").textContent = "Completed";
+
+  const stats = getStats();
+
+  $("result").style.display = "block";
+  $("result").innerHTML =
+    "<strong>Test complete!</strong><br>" +
+    "Typing speed: " + stats.wpm + " WPM<br>" +
+    "Accuracy: " + stats.accuracy + "%<br>" +
+    "Mistakes: " + stats.mistakes + "<br>" +
+    "Characters typed: " + input.value.length;
+
+  $("startBtn").textContent = "Try Again";
+  renderText();
+}
+
+function startClock() {
+  if (startedAt !== null || finished) return;
+
+  startedAt = Date.now();
+  $("status").textContent = "In progress";
+
+  timer = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+    remaining = Math.max(0, Number(duration.value) - elapsed);
+
+    $("time").textContent = remaining;
+    updateStats();
+
+    if (remaining <= 0) finishTest();
+  }, 200);
+}
+
+function resetTest() {
+  if (timer !== null) clearInterval(timer);
+
+  timer = null;
+  startedAt = null;
+  finished = false;
+  remaining = Number(duration.value);
+  target = choosePassage();
+
+  input.value = "";
+  input.disabled = false;
+
+  $("time").textContent = remaining;
+  $("status").textContent = "Not started";
+  $("result").style.display = "none";
+  $("startBtn").textContent = "Start Typing";
+
+  updateStats();
+}
+
+input.addEventListener("input", () => {
+  if (finished) return;
+
+  // Stop typing after completing the displayed passage.
+  if (input.value.length > target.length) {
+    input.value = input.value.slice(0, target.length);
+  }
+
+  if (input.value.length > 0 && startedAt === null) {
+    startClock();
+  }
+
+  updateStats();
+
+  if (input.value.length >= target.length) {
+    finishTest();
+  }
+});
+
+input.addEventListener("paste", event => {
+  event.preventDefault();
+});
+
+$("startBtn").addEventListener("click", () => {
+  if (finished) resetTest();
+  input.focus();
+});
+
+$("restartBtn").addEventListener("click", () => {
+  resetTest();
+  input.focus();
+});
+
+language.addEventListener("change", resetTest);
+duration.addEventListener("change", resetTest);
+
+resetTest();
+</script>
+</body>
+</html>
